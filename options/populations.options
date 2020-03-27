@@ -1,0 +1,44 @@
+#The options in this file are more fully described in the walkthrough pdf, Sect. 6.
+#
+#QUASAR TEMPLATE DISTRIBUTION
+#
+#line strengths - must sum to 1
+#
+l0 0.0
+lh 0.0
+ls 1.
+ld 0.0
+#
+#continuum slopes - must sum to 1
+#
+cb 0.0
+cs 1.
+cr 0.0
+#
+#add near zone to quasar templates
+#
+nz 0
+#
+#
+#QUASAR WEIGHT INTEGRATION LIMITS
+#
+zlo 6.5
+zhi 7.5
+#
+#
+#COSMOLOGY
+#
+Cosmology_h 0.7
+Cosmology_Omega_M 0.3
+Cosmology_Omega_k 0.0
+Cosmology_Omega_L 0.7
+#
+#
+#
+#Use this option to add error in quadrature when calculating the MLT likelihood.
+#Or to produce a more representative range of intrinsic colours when simulating MLTs (planned).
+#This accounts for the intrinsic scatter in the MLT template colours
+#This should be given in magnitudes.
+#
+MLT_scatter 0.00
+#
