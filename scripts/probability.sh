@@ -49,4 +49,4 @@ else #restart the script if an invalid option is given
     exec "$scriptloc"
 fi
 
-echo "This code was written by Rhys Barnett @ Imperial College London, Feb 2020"
+echo "This code was written by Rhys Barnett @ Imperial College London, July 2020 (v1.1)"

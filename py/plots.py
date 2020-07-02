@@ -68,7 +68,7 @@ def plottext(d,phot,q,g,s,JF):
         ra,dec = d['ra_s'],d['dec_s']
     txtpos = f"coordinates: {ra} {dec}\n"
     #Jfilter
-    if "VIK" in JF:
+    if "VIK" in JF or "LAS" in JF or "UV" in JF:
         JF = "MKO"
     txtmag = "$J_{AB}$" + f"= {dld._flux2mag(phot[f'J_{JF}1']['f'],3631.)}\n"
     txts = f"MLT: {s['spt']}; " + "$\chi^2_{red}$=" + f"{s['chisq']/dof:.2g}\n"
@@ -164,13 +164,13 @@ def posterior_plot(phot,dsinb,JF):
     #Q
     ax[0].plot(Q['z'],Q['vals'],'k-')
     ax[0].set_xlabel(r'$z$',fontsize=11)
-    ax[0].set_ylabel(r'$\frac{d}{dz}W_q$',fontsize=11)
+    ax[0].set_ylabel(r'$W_\mathrm{q} \times \mathrm{Pr}(z\mathrm{|data,q)}$',fontsize=11)
     ax[0].xaxis.set_major_locator(tck.MultipleLocator(0.25))
     ax[0].xaxis.set_minor_locator(tck.MultipleLocator(0.05))
     #G
     ax[1].plot(G['z'],G['vals'],'r-')
     ax[1].set_xlabel(r'$z$',fontsize=11)
-    ax[1].set_ylabel(r'$\frac{d}{dz}W_g$',fontsize=11)
+    ax[1].set_ylabel(r'$W_\mathrm{g} \times \mathrm{Pr}(z\mathrm{|data,g)}$',fontsize=11)
     ax[1].xaxis.set_major_locator(tck.MultipleLocator(0.25))
     ax[1].xaxis.set_minor_locator(tck.MultipleLocator(0.05))
     #S
@@ -188,7 +188,7 @@ def posterior_plot(phot,dsinb,JF):
     #print(S)  
     return fig
 
-def make_plots(d,opath):
+def make_plots(d,JF,opath):
     pdfname = f"row_{d.name+1}.pdf"
     phot = dld._flux_dict(d)
     p1 = best_fit_sed_plot(d,phot,JF)
@@ -213,8 +213,8 @@ if __name__ == "__main__":
     d = rows_of_interest(d)
     #if there's just one row returned it's a series, if not a dataframe
     if isinstance(d, pd.DataFrame):
-        d.apply(lambda x: make_plots(x,opath), axis=1)
+        d.apply(lambda x: make_plots(x,JF,opath), axis=1)
     else:
-        make_plots(d,opath)
+        make_plots(d,JF,opath)
     print(f"Done. Please check output in the folder {opath}")
     

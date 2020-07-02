@@ -1,0 +1,14 @@
+#Asinh magnitudes are commonly characterized by a softening parameter b
+#This can alternatively be expressed as a zero flux magnitude, m0 = -2.5*log10(b)
+#
+#m0 should be specified for any filter for which you wish to provide asinh magnitudes in the BMC code
+#Values for SDSS and VIKING are already built into the code so do not need to be included in this file.
+#If you wish to change these you can specify alternative values below, although there should be good reason to do this.
+#The defaults are i_SDSS 24.36, z_SDSS 22.83, Z_VIK 26.10, Y_VIK 25.23, J_VIK 24.41, H_VIK 23.66, KS_VIK 23.04
+#
+#
+#Specify one filter per row, using the standard labelling format without a 'phottype' (such as the examples above)
+#
+#For further information about asinh magnitudes see Lupton, Gunn & Szalay (1999)
+#SDSS also provide useful documentation, e.g., http://www.sdss3.org/dr10/algorithms/magnitudes.php#asinh
+#

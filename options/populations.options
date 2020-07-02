@@ -22,8 +22,8 @@ nz 0
 #
 #QUASAR WEIGHT INTEGRATION LIMITS
 #
-zlo 6.5
-zhi 7.5
+zlo 6.3
+zhi 9.
 #
 #
 #COSMOLOGY
