@@ -61,7 +61,7 @@ def _J_filter(filename,testingmode=0):
 
 #initialise values for luptitudes
 def _m0_values_setup():
-    m0 = { 'i_SDSS': 24.36181874,'z_SDSS': 22.8269207,\
+    m0 = { 'u_SDSS':24.63, 'g_SDSS':25.11, 'r_SDSS': 24.80, 'i_SDSS': 24.36,'z_SDSS': 22.83,\
     'VIK': {'Z_MKO': 26.104,'Y_MKO': 25.225,'J_MKO': 24.411,'H_MKO': 23.660,'KS_MKO':23.040}}
     try:
         with warnings.catch_warnings():
@@ -321,18 +321,24 @@ if __name__ == "__main__":
     print("Value of __name__ is:", __name__)
     print("Running dataload.py module")
     startpath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    _vega_zp = {'i_PS': 2577.,'z_PS': 2273.,'y_PS': 2204.,\
+    _vega_zp = {'g_PS':3893.,'r_PS':3135.5,\
+            'i_PS': 2577.,'z_PS': 2273.,'y_PS': 2204.,\
             #note LSST & PS are very similar.
+            'u_LSST':2089.,'g_LSST':3912.,'r_LSST':3127.,\
             'i_LSST':2578.,'z_LSST': 2272.,'y_LSST': 2187.,\
+            'u_SDSS':1569.,'g_SDSS':3966.,'r_SDSS':3162.,\
             'i_SDSS': 2602.,'z_SDSS': 2245.,\
+            'g_DEC':3905.,'r_DEC':3027.,'i_DEC':2468.,\
             'z_DEC': 2247.,'Y_DEC': 2146.,\
+            'r_COS': 3097.,'i_COS':2522.,\
             'z_COS': 2253.,'y_COS': 2186.,\
             'Z_MKO': 2247.,'Y_MKO': 2055.,'J_MKO': 1531.,'H_MKO': 1014.,'K_MKO':631.,'KS_MKO':667.,\
             'W1_WISE':310.,'W2_WISE':170.,\
             'O_EUC': 2667.,'Y_EUC': 1900.,'J_EUC': 1354.,'H_EUC': 922.}
     
-    
-    filename = "sdss2/data.csv"
+    filename = "vikingquasar.flx"
+
+    #filename = "sdss2/data.csv"
     _m0_values = _m0_values_setup()
     d = csv_load(filename)
     
@@ -343,16 +349,23 @@ else:
     startpath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         filename = sys.argv[1]
-    except IndexError: #should only occur if pqrun/plots are NOT run from command line - testing assumed.
-        filename = "J1120.sed"
-        #filename = "vikingquasar.flx"
+    except IndexError: #should only occur if pqrun/plots are NOT run from command line
+        #likely to be running pqrun.py within spyder.
+        #filename = "J1120.sed"
+        filename = "vikingquasar.flx"
+        
     _Jfilt = _J_filter(filename)      
 #vega zero points in Jy. Combination of SVO filter sevice, Hewett+ 2006 and CASU homepage.
-    _vega_zp = {'i_PS': 2577.,'z_PS': 2273.,'y_PS': 2204.,\
+    _vega_zp = {'g_PS':3893.,'r_PS':3135.5,\
+            'i_PS': 2577.,'z_PS': 2273.,'y_PS': 2204.,\
             #note LSST & PS are very similar.
+            'u_LSST':2089.,'g_LSST':3912.,'r_LSST':3127.,\
             'i_LSST':2578.,'z_LSST': 2272.,'y_LSST': 2187.,\
+            'u_SDSS':1569.,'g_SDSS':3966.,'r_SDSS':3162.,\
             'i_SDSS': 2602.,'z_SDSS': 2245.,\
+            'g_DEC':3905.,'r_DEC':3027.,'i_DEC':2468.,\
             'z_DEC': 2247.,'Y_DEC': 2146.,\
+            'r_COS': 3097.,'i_COS':2522.,\
             'z_COS': 2253.,'y_COS': 2186.,\
             'Z_MKO': 2247.,'Y_MKO': 2055.,'J_MKO': 1531.,'H_MKO': 1014.,'K_MKO':631.,'KS_MKO':667.,\
             'W1_WISE':310.,'W2_WISE':170.,\
@@ -363,10 +376,15 @@ else:
     
     
     #5sigma depths for qsfs which will be added in future.
-    _depth_5sig_ab = {'i_PS': 23.1,'z_PS': 22.3,'y_PS': 21.3,\
+    _depth_5sig_ab = {'g_PS':23.3,'r_PS':23.2,\
+            'i_PS': 23.1,'z_PS': 22.3,'y_PS': 21.3,\
+            'u_LSST':25.5,'g_LSST':26.6,'r_LSST':26.3,\
             'i_LSST':25.6,'z_LSST': 24.9,'y_LSST': 23.7,\
+            'u_SDSS':22.2,'g_SDSS':23.1,'r_SDSS':22.7,\
             'i_SDSS': 22.2,'z_SDSS': 20.7,\
+            'g_DEC':25.1,'r_DEC':24.9,'i_DEC':24.2,\
             'z_DEC': 23.5,'Y_DEC': 22.2,\
+            'r_COS':25.9 ,'i_COS':25.6,\
             'z_COS': 25.3,'y_COS': 23.8,\
             'Z_MKO': {'LAS':np.nan,'VIK':22.6},'Y_MKO': {'LAS': 20.8,'VIK':21.9},\
             'J_MKO': {'LAS': 20.4,'VIK':21.7},'H_MKO': {'LAS':20.1,'VIK':21.1},\
@@ -377,11 +395,16 @@ else:
     if sys.argv[0].endswith("plots.py") or sys.argv[0].endswith("output.py"):
         print("Diagnostic code running. We will be producing plots for specified candidates.")
         #effective wavelength in microns, all from SVO filter service
-        _eff_wavelength = {'i_PS': 0.750,'z_PS': 0.867,'y_PS': 0.961,\
+        _eff_wavelength = {'g_PS':0.481,'r_PS':0.616,\
+            'i_PS': 0.750,'z_PS': 0.867,'y_PS': 0.961,\
             #note LSST & PS are very similar.
+            'u_LSST':0.375,'g_LSST':0.474,'r_LSST':0.617,\
             'i_LSST':0.750,'z_LSST': 0.868,'y_LSST': 0.971,\
+            'u_SDSS':0.359,'g_SDSS':0.464,'r_SDSS':0.612,\
             'i_SDSS': 0.744,'z_SDSS': 0.890,\
+            'g_DEC':0.477,'r_DEC':0.637,'i_DEC':0.777,\
             'z_DEC': 0.916,'Y_DEC': 0.988,\
+            'r_COS': 0.623,'i_COS':0.763,
             'z_COS': 0.909,'y_COS': 0.975,\
             'Z_MKO': 0.877,'Y_MKO': 1.020,'J_MKO': 1.252,'H_MKO': 1.645,'K_MKO':2.201,'KS_MKO':2.147,\
             'W1_WISE':3.353,'W2_WISE':4.603,\

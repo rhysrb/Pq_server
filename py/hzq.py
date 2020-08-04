@@ -73,9 +73,13 @@ def _cosmology_lookups():
         for z in _myqzs:
             _dllookup[f'{z:.2f}'] = round(_dlz(z,_OM,_OL,_Ok,_h),5)
             _dvlookup[f'{z:.2f}'] = round(_dvc(z,_OM,_OL,_Ok,_h),5)
-        s = shelve.open(dld.startpath+"/models/quasars/db/HZQ.db")
-        s[f'{_h:.3f}_{_OM:.3f}_{_Ok:.3f}_{_OL:.3f}'] = {'dl':_dllookup,'dv':_dvlookup}
-        s.close()
+        try:
+            s = shelve.open(dld.startpath+"/models/quasars/db/HZQ.db")
+            s[f'{_h:.3f}_{_OM:.3f}_{_Ok:.3f}_{_OL:.3f}'] = {'dl':_dllookup,'dv':_dvlookup}
+            s.close()
+        except:
+            print("Error outputting tables for this cosmology.")
+            print("Code will continue but tables will not be saved for future use.")
     return _dllookup,_dvlookup
 
 
@@ -282,17 +286,23 @@ def _colour_shelf(nz=0):
                 model[m]['X-J_EUC']['J_EUC'][f"{z:.2f}"] = JE_e(z)
                 model[m]['X-J_EUC']['H_EUC'][f"{z:.2f}"] = HE_e(z)
                 model[m]['X-J_EUC']['KJ'][f"{z:.2f}"] = KJ_e(z)
-                #do the i bands which we always just want at a high value
-                #SDSS,PS,LSST
-                model[m]['X-J_MKO']['i_PS'][f"{z:.2f}"] = 100
-                model[m]['X-J_EUC']['i_PS'][f"{z:.2f}"] = 100
-                model[m]['X-J_MKO']['i_LSST'][f"{z:.2f}"] = 100
-                model[m]['X-J_EUC']['i_LSST'][f"{z:.2f}"] = 100
-                model[m]['X-J_MKO']['i_SDSS'][f"{z:.2f}"] = 100
-                model[m]['X-J_EUC']['i_SDSS'][f"{z:.2f}"] = 100
-        s = shelve.open(dld.startpath+"/models/quasars/db/HZQ.db",writeback=1)
-        s[qset] = model
-        s.close()
+                #do the ugri bands which we always just want at a high value
+                #not all of these systems have the full set ugri but won't matter that extras are created
+                for opt_band in 'irgu':
+                    for opt_set in ['PS','LSST','SDSS','DEC','COS']:
+                        try:
+                            model[m]['X-J_MKO'][f'{opt_band}_{opt_set}'][f"{z:.2f}"] = 100
+                            model[m]['X-J_EUC'][f'{opt_band}_{opt_set}'][f"{z:.2f}"] = 100
+                        except KeyError:
+                            model[m]['X-J_MKO'][f'{opt_band}_{opt_set}'] = {f"{z:.2f}": 100}
+                            model[m]['X-J_EUC'][f'{opt_band}_{opt_set}'] = {f"{z:.2f}": 100}
+        try:
+            s = shelve.open(dld.startpath+"/models/quasars/db/HZQ.db",'n')
+            s[qset] = model
+            s.close()
+        except:
+            print("Error saving HZQ colour table.")
+            print("Code will continue but colours will not be saved for future use.")
     return model
 
 ########################################################################################################################################
@@ -412,6 +422,9 @@ if __name__ == "__main__":
     print("Value of __name__ is:", __name__)
     print("Running hzq.py module")
     print(_check_cosmology())
+        
+    print('done - hzqs')
+    
     #do whatever
 else:
     #myqzs is used to evaluate cosmology at required points

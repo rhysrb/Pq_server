@@ -30,25 +30,39 @@ def _colour_shelf():
         model = {'zf3':{},'zf10':{}}
         cols = ['z','gr_PS','gr_DEC','gr_SDSS','ri_PS','ri_DEC','ri_SDSS','ri_COS',\
                 'iz_PS','iz_DEC','iz_SDSS','iz_COS','zy_PS','zY_PS_MKO','zY_DEC','zY_DEC_MKO','zY_SDSS_MKO',\
-                'ZY_MKO','YJ_MKO','JH_MKO','HK_MKO','KKs_MKO','KW1','W1W2','OY_EUC','YJ_EUC','JH_EUC','JJ_EUC_MKO']
+                'ZY_MKO','YJ_MKO','JH_MKO','HK_MKO','KKs_MKO','KW1','W1W2','OY_EUC','YJ_EUC','JH_EUC','JJ_EUC_MKO',\
+                'ug_LSST','ug_SDSS']
         for zf in model:
             interps = {}
             model[zf]['X-J_MKO'] = {}; model[zf]['X-J_EUC'] = {}
             d = pd.read_csv(dld.startpath+f'/models/galaxies/colours_{zf}.ab',sep='\t',header=35,names=cols)
             #recast the colours as X-J for all bands, and J_MKO
             #these bands match the MLT filters so all are available for the BMC
+            interps['g_PS'] = interpolate.UnivariateSpline(d.z,d.gr_PS + d.ri_PS + d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['r_PS'] = interpolate.UnivariateSpline(d.z,d.ri_PS + d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
             interps['i_PS'] = interpolate.UnivariateSpline(d.z,d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
             interps['z_PS'] = interpolate.UnivariateSpline(d.z,d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
             interps['y_PS'] = interpolate.UnivariateSpline(d.z,d.zY_PS_MKO + d.YJ_MKO - d.zy_PS,s=0,k=1)
             #note LSST & PS have same colours
+            interps['u_LSST'] = interpolate.UnivariateSpline(d.z,d.ug_LSST + d.gr_PS + d.ri_PS + d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['g_LSST'] = interpolate.UnivariateSpline(d.z,d.gr_PS + d.ri_PS + d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['r_LSST'] = interpolate.UnivariateSpline(d.z,d.ri_PS + d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)          
             interps['i_LSST'] = interpolate.UnivariateSpline(d.z,d.iz_PS + d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
             interps['z_LSST'] = interpolate.UnivariateSpline(d.z,d.zY_PS_MKO + d.YJ_MKO,s=0,k=1)
             interps['y_LSST'] = interpolate.UnivariateSpline(d.z,d.zY_PS_MKO + d.YJ_MKO - d.zy_PS,s=0,k=1)
+            interps['u_SDSS'] = interpolate.UnivariateSpline(d.z,d.ug_SDSS + d.gr_SDSS + d.ri_SDSS + d.iz_SDSS + d.zY_SDSS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['g_SDSS'] = interpolate.UnivariateSpline(d.z,d.gr_SDSS + d.ri_SDSS + d.iz_SDSS + d.zY_SDSS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['r_SDSS'] = interpolate.UnivariateSpline(d.z,d.ri_SDSS + d.iz_SDSS + d.zY_SDSS_MKO + d.YJ_MKO,s=0,k=1)
             interps['i_SDSS'] = interpolate.UnivariateSpline(d.z,d.iz_SDSS + d.zY_SDSS_MKO + d.YJ_MKO,s=0,k=1)
             interps['z_SDSS'] = interpolate.UnivariateSpline(d.z,d.zY_SDSS_MKO + d.YJ_MKO,s=0,k=1)
+            interps['g_DEC'] = interpolate.UnivariateSpline(d.z,d.gr_DEC + d.ri_DEC + d.iz_DEC + d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
+            interps['r_DEC'] = interpolate.UnivariateSpline(d.z,d.ri_DEC + d.iz_DEC + d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
+            interps['i_DEC'] = interpolate.UnivariateSpline(d.z,d.iz_DEC + d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
             interps['z_DEC'] = interpolate.UnivariateSpline(d.z,d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
             interps['Y_DEC'] = interpolate.UnivariateSpline(d.z,d.zY_DEC_MKO + d.YJ_MKO - d.zY_DEC,s=0,k=1)
             #zy DEC matches zy COSMOS but the MKO links are different :S
+            interps['r_COS'] = interpolate.UnivariateSpline(d.z,d.ri_COS + d.iz_COS + d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
+            interps['i_COS'] = interpolate.UnivariateSpline(d.z,d.iz_COS + d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
             interps['z_COS'] = interpolate.UnivariateSpline(d.z,d.zY_DEC_MKO + d.YJ_MKO,s=0,k=1)
             interps['y_COS'] = interpolate.UnivariateSpline(d.z,d.zY_DEC_MKO + d.YJ_MKO - d.zY_DEC,s=0,k=1)
             interps['Z_MKO'] = interpolate.UnivariateSpline(d.z,d.ZY_MKO + d.YJ_MKO,s=0,k=1)
@@ -68,9 +82,13 @@ def _colour_shelf():
                 for z in _mygzs:
                     model[zf]['X-J_MKO'][i][f"{z:.2f}"] = interps[i](z)
                     model[zf]['X-J_EUC'][i][f"{z:.2f}"] = interps[i](z) - interps['J_EUC'](z)
-        s = shelve.open(dld.startpath+"/models/galaxies/db/ETG.db", flag='n')
-        s['ETG'] = model
-        s.close()            
+        try:
+            s = shelve.open(dld.startpath+"/models/galaxies/db/ETG.db", flag='n')
+            s['ETG'] = model
+            s.close()
+        except:
+            print("Error saving ETG colour table.")
+            print("Code will continue but colours will not be saved for future use.")
     return model
 
 ########################################################################################################################################
@@ -175,6 +193,7 @@ def best_fit_SED(phot,Jfilter):
 if __name__ == "__main__":
     print("Value of __name__ is:", __name__)
     print("Running etg.py module")
+    print("done - ETG colours")
     #do whatever
 else:
     _mygzs = [round(i,2) for i in np.arange(0.75,2.251,0.01)]

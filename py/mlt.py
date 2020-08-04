@@ -64,19 +64,25 @@ OY_EUC= float(_cols[19]);YJ_EUC= float(_cols[20]);JH_EUC= float(_cols[21]);JJ_EU
                 #first objects for the lookup
                 model[_t] = {'n':float(_cols[1]), 'MJ_MKO': float(_cols[2]), 'MJ_EUC': float(_cols[3])}
                 #now combine and store all the colours
+                #use ugri colours in the optical - but where models aren't blue enough use high value & set flux to zero later
                 model[_t]['X-J_MKO']=\
-                {'i_PS': iz_PS + zY_PS_MKO + YJ_MKO,\
+                {'g_PS':100,'r_PS':100,\
+                 'i_PS': iz_PS + zY_PS_MKO + YJ_MKO,\
                  'z_PS': zY_PS_MKO + YJ_MKO,\
                  'y_PS': zY_PS_MKO + YJ_MKO - zy_PS,\
                  #note LSST & PS have same colours
+                 'u_LSST':100, 'g_LSST':100, 'r_LSST':100,\
                  'i_LSST': iz_PS + zY_PS_MKO + YJ_MKO,\
                  'z_LSST': zY_PS_MKO + YJ_MKO,\
                  'y_LSST': zY_PS_MKO + YJ_MKO - zy_PS,\
+                 'u_SDSS':100, 'g_SDSS':100, 'r_SDSS':100,\
                  'i_SDSS': iz_SDSS + zY_SDSS_MKO + YJ_MKO,\
                  'z_SDSS': zY_SDSS_MKO + YJ_MKO,\
+                 'g_DEC':100,'r_DEC':100,'i_DEC':100,\
                  'z_DEC': zY_DEC_MKO + YJ_MKO,\
                  'Y_DEC': zY_DEC_MKO + YJ_MKO - zY_DEC,\
                  #zy DEC matches zy COSMOS but the MKO links are different :S
+                 'r_COS':100,'i_COS':100,\
                  'z_COS': zY_COS_MKO + YJ_MKO,\
                  'y_COS': zY_COS_MKO + YJ_MKO - zY_DEC,\
                  'Z_MKO': ZY_MKO + YJ_MKO,\
@@ -94,10 +100,17 @@ OY_EUC= float(_cols[19]);YJ_EUC= float(_cols[20]);JH_EUC= float(_cols[21]);JJ_EU
                 #now we have a shortcut to the X-J_EUC colours 
                 model[_t]['X-J_EUC']={}
                 for X in model[_t]['X-J_MKO']:
-                    model[_t]['X-J_EUC'][X] = model[_t]['X-J_MKO'][X] - JJ_EUC_MKO                    
-        s = shelve.open(dld.startpath+"/models/MLT/db/MLT.db",'n')
-        s['MLT'] = model
-        s.close()
+                    if model[_t]['X-J_MKO'][X] < 99:
+                        model[_t]['X-J_EUC'][X] = model[_t]['X-J_MKO'][X] - JJ_EUC_MKO
+                    else:
+                        model[_t]['X-J_EUC'][X] = 100
+        try:                
+            s = shelve.open(dld.startpath+"/models/MLT/db/MLT.db",'n')
+            s['MLT'] = model
+            s.close()
+        except:
+            print("Error saving MLT colour table.")
+            print("Code will continue but colours will not be saved for future use.")
     return model
 
 
@@ -133,7 +146,7 @@ def _mltlikelihood(fj,t,Jfilter,photom):
     for band in photom:
         if photom[band]['f']:
             colour = _model[t][f'X-J_{Jfilter}'][band[:-1]]
-            predb = fj * 10**(-0.4*colour)
+            predb = fj * 10**(-0.4*colour) if colour < 10 else 0. #deals with blue filters which have been set to colour = 100 above
             lk *= bmccom.liketerm(predb,photom[band]['f'],photom[band]['e_mlt'])
     return lk
 
@@ -185,7 +198,7 @@ def best_fit_SED(phot,Jfilter):
         template = []
         for band in bands:#build template for each model. note the bands in 'bands' have had subscripted integers removed.
             colour = _model[t][f'X-J_{Jfilter}'][band]
-            predb = Jflx * 10**(-0.4*colour)
+            predb = Jflx * 10**(-0.4*colour) if colour < 10 else 0
             template.append(predb)
         best_scale = bmccom.scalebest(template,sed,errors)#scaling that minimises chisq for a template
         chisq = sum([bmccom.chisq(template[i],j,errors[i],best_scale) for i,j in enumerate(sed) if type(errors[i])!=str])#minimum chisq
@@ -199,7 +212,6 @@ def best_fit_SED(phot,Jfilter):
 if __name__ == "__main__":
     print("Value of __name__ is:", __name__)
     print("Running mlt.py module")
-    print(_mlt_options())
     #do whatever
 else:
     _spectraltypes = ['M0','M1','M2','M3','M4','M5','M6','M7','M8','M9','L0','L1','L2','L3','L4','L5','L6','L7','L8','L9','T0','T1','T2','T3','T4','T5','T6','T7','T8']
