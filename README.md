@@ -1,6 +1,6 @@
 # Pq_server
 
-v1.2 2nd August 2020
+v1.2 4th August 2020
 
 Full support for ugriz oprical bands
 
