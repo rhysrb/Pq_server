@@ -336,9 +336,8 @@ if __name__ == "__main__":
             'W1_WISE':310.,'W2_WISE':170.,\
             'O_EUC': 2667.,'Y_EUC': 1900.,'J_EUC': 1354.,'H_EUC': 922.}
     
-    filename = "vikingquasar.flx"
+    filename = "J1120.sed"
 
-    #filename = "sdss2/data.csv"
     _m0_values = _m0_values_setup()
     d = csv_load(filename)
     
@@ -351,8 +350,7 @@ else:
         filename = sys.argv[1]
     except IndexError: #should only occur if pqrun/plots are NOT run from command line
         #likely to be running pqrun.py within spyder.
-        #filename = "J1120.sed"
-        filename = "vikingquasar.flx"
+        filename = "J1120.sed"
         
     _Jfilt = _J_filter(filename)      
 #vega zero points in Jy. Combination of SVO filter sevice, Hewett+ 2006 and CASU homepage.
