@@ -2,6 +2,7 @@ import os
 import dataload as dld
 import bmc_common as bmccom
 import hzq,mlt,etg
+from pqrun import weights_and_prob
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -60,7 +61,7 @@ def plottext(d,phot,q,g,s,JF):
     l = len([i for i in q['e'] if type(i)!=str])
     limits = 0 if l == len(q['e']) else 1
     dof = l - 1.
-    probs = 1 if 'Pq' in d else 0
+    w_s,w_g,w_q,p_q = weights_and_prob(d,JF) #method in pqrun.py    
     #coordinates
     if 'ra_d' in d:
         ra,dec = round(d['ra_d'],4),round(d['dec_d'],4)
@@ -74,21 +75,14 @@ def plottext(d,phot,q,g,s,JF):
     txts = f"MLT: {s['spt']}; " + "$\chi^2_{red}$=" + f"{s['chisq']/dof:.2g}\n"
     txtg = f"ETG: $z_f$ = {g['zf'][2:]}; $z$ = {g['z']:.2f}; " + "$\chi^2_{red}$=" + f"{g['chisq']/dof:.2g}\n"
     txtq = f"HZQ: model = {q['qm']}; $z$ = {q['qz']:.2f}; " + "$\chi^2_{red}$=" + f"{q['chisq']/dof:.2g}\n"
-    #limit/prob combo   
-    if limits and probs:
-        txtfinal = (f"Wq: {d['Wq']:.3g};  Ws: {d['Ws']:.3g};  Wg: {d['Wg']:.3g} \n"
-                    f"Pq: {d['Pq']:.2g}\n"
+    if limits:
+        txtfinal = (f"Wq: {w_q:.3g};  Ws: {w_s:.3g};  Wg: {w_g:.3g} \n"
+                    f"Pq: {p_q:.2g}\n"
                     "Limits are not included in the $\chi^2$ calculation\n"
                     "but are included in the $P_q$ calculation.")
-    elif limits and not probs:
-       txtfinal = "Limits are not included in the $\chi^2$ calculation"
-    elif not limits and probs:
-        txtfinal = (f"Wq: {d['Wq']:.2g};  Ws: {d['Ws']:.2g};  Wg: {d['Wg']:.2g}\n"
-                    f"Pq: {d['Pq']:.2g}\n"
-                    "Limits are not included in the $\chi^2$ calculation\n"
-                    "but are included in the $P_q$ calculation.")
-    else:
-        txtfinal = "All filters included in the $\chi^2$ calculation"  
+    else: 
+        txtfinal = (f"Wq: {w_q:.3g};  Ws: {w_s:.3g};  Wg: {w_g:.3g} \n"
+                    f"Pq: {p_q:.2g}\n")
         
     txt = (f"{txtpos}"
            f"{txtmag}"
@@ -96,6 +90,15 @@ def plottext(d,phot,q,g,s,JF):
            f"{txtg}"
            f"{txtq}"
            f"{txtfinal}")
+    return txt
+
+def filtertext(phot):
+    filters = list(set([bmccom.band_name_nodigits_regex(b) for b in phot]))
+    fw = [dld._eff_wavelength[fil] for fil in filters]
+    fzip = sorted(list(zip(fw,filters)),key = lambda x: x[0])  
+    txt = "filters present\n(shortest to longest wavelength):\n"
+    for fz in fzip:
+        txt += f"{fz[1]} ({fz[0]:.2f} $\mu$m)\n"
     return txt
 
 def plot_params(ax): #get tick locators etc from axis size
@@ -135,11 +138,13 @@ def best_fit_sed_plot(d,phot,JF):
     #check the photometry dictionary for any limits bands - these won't have been included in the chisq fitting
     xmin,xmax,xmajloc,xminloc,ymajloc,yminloc = plot_params(ax1)    
     for b in phot:
-        b_nodigits = bmccom.remove_digits(b); w = dld._eff_wavelength[b_nodigits]
-        ax1.text(w,-ymajloc*0.5,f"{b_nodigits}",fontsize=7)
+        b_nodigits = bmccom.band_name_nodigits_regex(b); w = dld._eff_wavelength[b_nodigits]
+        #ax1.text(w,-ymajloc*0.5,f"{b_nodigits}",fontsize=7)
         if type(phot[b]['e']) == str:
-            b_nodigits = bmccom.remove_digits(b); w = dld._eff_wavelength[b_nodigits]
+            #b_nodigits = bmccom.remove_digits(b); 
+            w = dld._eff_wavelength[b_nodigits]
             ax1.errorbar(w,phot[b]['f'],xerr=0.75*xminloc,yerr=yminloc, linestyle="None",color='b',uplims=1)
+        
     ax1.tick_params(axis='both', which='major', labelsize=10)        
     ax1.xaxis.set_major_locator(tck.MultipleLocator(xmajloc))
     ax1.xaxis.set_minor_locator(tck.MultipleLocator(xminloc))
@@ -148,6 +153,8 @@ def best_fit_sed_plot(d,phot,JF):
     ax1.set_ylim(bottom=-ymajloc)
     ax1.set_xlim(right=xmax)
     ax1.legend(frameon=0,fontsize=9)
+    flttxt = filtertext(phot)
+    ax1.text(0.66*xmax,yminloc-ymajloc,flttxt,fontsize=8)
     plottxt = plottext(d,phot,bfq,bfg,bfs,JF)
     ax1.text(xmax+xminloc,ymajloc,plottxt,fontsize=6)
     plot_params(ax1)
@@ -203,6 +210,7 @@ def make_plots(d,JF,opath):
 
 
 if __name__ == "__main__":
+    #filename = "quasar_db_calc.csv"
     filename = dld.filename
     opath = out_folder(filename)
     JF = dld._Jfilt

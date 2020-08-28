@@ -18,6 +18,18 @@ def Pq(d):
     d['Pq'] = Pq
     return d
 
+def weights_and_prob(d,JF): #used in plots.py
+    check = pd.Series(['Ws', 'Wg', 'Wq', 'Pq'])
+    if sum(check.isin(d.index))==4 and not d[check].hasnans:
+        return d['Ws'],d['Wg'],d['Wq'],d['Pq']
+    else:
+        phot = dld._flux_dict(d)
+        Wq = hzq.W(phot,JF)
+        Ws = mlt.W(phot,d['sinb'],JF)
+        Wg = etg.W(phot,JF)
+        Pq = Wq/(Wq+Ws+Wg)
+        return Ws,Wg,Wq,Pq
+
 if __name__ == "__main__":
     filename = dld.filename
     d = dld.csv_load(filename)

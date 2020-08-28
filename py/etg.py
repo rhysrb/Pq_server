@@ -136,8 +136,8 @@ def _etglikelihood(jab,zin,zf,Jfilter,photom):
     predJ = 3631.*(10**(-0.4*jab))
     lk = 1.
     for band in photom:
-        if photom[band]['f']:
-            colour = _model[zf][f'X-J_{Jfilter}'][band[:-1]][f"{zin:.2f}"]
+        if photom[band]['f'] is not None:
+            colour = _model[zf][f'X-J_{Jfilter}'][bmccom.band_name_nodigits_regex(band)][f"{zin:.2f}"]
             predb = predJ * 10**(-0.4*colour)
             lk *= bmccom.liketerm(predb,photom[band]['f'],photom[band]['e'])
     return lk

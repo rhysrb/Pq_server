@@ -1,10 +1,12 @@
 #define a few things that are common to all three populations in the BMC calcuation.
 #This includes the simpsons rule function, and likelihood functions.
 import numpy as np
+import re
 
 if __name__ == "__main__":
     print("Value of __name__ is:", __name__)
     print("Running bmc_common.py module")
+    print(band_name_nodigits_regex("W1_WISE10"))
     #do other test stuff...
 
 #single quad combined with simpsons approximation over z is much faster
@@ -57,16 +59,27 @@ def my_erf(x):
 
 
 ########some functions associated with minimum chi squared plotting####################
-   
-def remove_digits(b):
-    usi = b.find("_") #remove digits from b after the first underscore (preserve the digits in W1W2)
-    return b[:usi] + ''.join([i for i in b[usi:] if not i.isdigit()])
+
+def band_name_nodigits_regex(band):
+    if band.startswith("W1_WISE"):
+        return "W1_WISE"
+    elif band.startswith("W2_WISE"):
+        return "W2_WISE"
+    else:
+        regex = re.compile('[\s\D]+')
+        b = regex.match(band).group()
+        return b
+
+
+#def remove_digits(b):
+#    usi = b.find("_") #remove digits from b after the first underscore (preserve the digits in W1W2)
+#    return b[:usi] + ''.join([i for i in b[usi:] if not i.isdigit()])
 
 def seds_for_chisq(phot,Jfilter):
     bands,sed,errors = [],[],[]
     for b in phot: #compile sed of real flux values
-        if phot[b]['f']:
-            b_nodigits = remove_digits(b)
+        if phot[b]['f'] is not None:
+            b_nodigits = band_name_nodigits_regex(b)
             bands.append(b_nodigits)
             sed.append(phot[b]['f'])
             errors.append(phot[b]['e'])

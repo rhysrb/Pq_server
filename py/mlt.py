@@ -144,8 +144,8 @@ def _mltdensity(fj,t,sb,Jfilter):
 def _mltlikelihood(fj,t,Jfilter,photom):
     lk = 1.
     for band in photom:
-        if photom[band]['f']:
-            colour = _model[t][f'X-J_{Jfilter}'][band[:-1]]
+        if photom[band]['f'] is not None:
+            colour = _model[t][f'X-J_{Jfilter}'][bmccom.band_name_nodigits_regex(band)]
             predb = fj * 10**(-0.4*colour) if colour < 10 else 0. #deals with blue filters which have been set to colour = 100 above
             lk *= bmccom.liketerm(predb,photom[band]['f'],photom[band]['e_mlt'])
     return lk
@@ -156,7 +156,7 @@ def _mltintegrand(fj,t,sb,Jfilter,phot):
 #use the stated additional magnitude error to amend the flux errors for the MLT weight calculation
 def _add_error_in_quadrature(f,sigf,del_sigm):
      #skip upper limits
-    if type(sigf) == str:
+    if type(sigf) == str or f == 0: #catch upperlimits and f=0 values for which you can't shrink the S/N - get /0 error 
         return sigf
     sigm = abs((2.5*sigf)/(2.3*f))
     sigm_plus = np.sqrt(sigm**2. + del_sigm**2)
@@ -169,7 +169,7 @@ def W(phot,sb,Jfilter):
     slims = _fjlimits(fJ,eJ,5.)
     #adjust the flux errors by adding magnitude error in quadrature
     for b in phot:
-        if phot[b]['f']:
+        if phot[b]['f'] is not None: 
             phot[b]['e_mlt'] = _add_error_in_quadrature(phot[b]['f'],phot[b]['e'],_sigm_in_quad)
     for t in _spectraltypes:
         Ws += quad(_mltintegrand,slims[0],slims[1], args=(t,sb,Jfilter,phot))[0]
@@ -182,7 +182,7 @@ def dW_dt(phot,sb,Jfilter):
     slims = _fjlimits(fJ,eJ,5.)
     #adjust the flux errors by adding magnitude error in quadrature
     for b in phot:
-        if phot[b]['f']:
+        if phot[b]['f']is not None:
             phot[b]['e_mlt'] = _add_error_in_quadrature(phot[b]['f'],phot[b]['e'],_sigm_in_quad)
     dWdt = [quad(_mltintegrand,slims[0],slims[1], args=(t,sb,Jfilter,phot))[0] for t in _spectraltypes]
     return {'t':_spectraltypes, 'i':np.arange(-0.5,len(_spectraltypes)+0.5,1.), 'vals':dWdt}

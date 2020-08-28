@@ -173,7 +173,9 @@ def _colour_shelf(nz=0):
                'KS_MKO_MKO','W1_WISE_MKO','W2_WISE_MKO','O_EUC_MKO','Y_EUC_MKO','J_EUC_MKO','H_EUC_MKO','KJ_MKO',\
                'z_LSST_EUC','z_PS_EUC','z_DEC_EUC','z_COS_EUC','z_SDSS_EUC','y_LSST_EUC','y_PS_EUC',\
                'Y_DEC_EUC','y_COS_EUC','Z_MKO_EUC','Y_MKO_EUC','J_MKO_EUC','H_MKO_EUC','K_MKO_EUC',\
-               'KS_MKO_EUC','W1_WISE_EUC','W2_WISE_EUC','O_EUC_EUC','Y_EUC_EUC','J_EUC_EUC','H_EUC_EUC','KJ_EUC']
+               'KS_MKO_EUC','W1_WISE_EUC','W2_WISE_EUC','O_EUC_EUC','Y_EUC_EUC','J_EUC_EUC','H_EUC_EUC','KJ_EUC',\
+               'i_LSST_MKO','i_PS_MKO','i_DEC_MKO','i_SDSS_MKO','i_COS_MKO',\
+               'i_LSST_EUC','i_PS_EUC','i_DEC_EUC','i_SDSS_EUC','i_COS_EUC']
         icols = ['i_SDSS_MKO','i_SDSS_EUC','i_LSST_MKO','i_LSST_EUC','i_PS_MKO','i_PS_EUC']
         for m in model:
         #for m in ['ls_cs']:
@@ -187,7 +189,7 @@ def _colour_shelf(nz=0):
             #we want to produce the X-J colour in all bands X for J_MKO and J_EUC
             #additionally produce K-corrections
             d = pd.read_csv(dld.startpath+f'/models/quasars/X-J/{qset}/colours_kcorr_{m}.ab',\
-                            sep='\t',header=53,names=cols,na_values='---')        
+                            sep='\t',header=64,names=cols,na_values='---')        
             #replace the nas with high value which can be skipped later on in the code
             for col in d:
                 ival = d[col].last_valid_index()
@@ -195,15 +197,20 @@ def _colour_shelf(nz=0):
                     d[col] = d[col].fillna(100)
                 else:
                     d[col] = d[col].fillna(-100)
-            #interpolate all the colours    
+            #interpolate all the colours
+            i_PS_m = interpolate.UnivariateSpline(d.z,d.i_PS_MKO,s=0,k=1)            
             z_PS_m = interpolate.UnivariateSpline(d.z,d.z_PS_MKO,s=0,k=1)
             y_PS_m = interpolate.UnivariateSpline(d.z,d.y_PS_MKO,s=0,k=1)
+            i_LSST_m = interpolate.UnivariateSpline(d.z,d.i_LSST_MKO,s=0,k=1)            
             z_LSST_m = interpolate.UnivariateSpline(d.z,d.z_LSST_MKO,s=0,k=1)
             y_LSST_m = interpolate.UnivariateSpline(d.z,d.y_LSST_MKO,s=0,k=1)
+            i_DEC_m = interpolate.UnivariateSpline(d.z,d.i_DEC_MKO,s=0,k=1)
             z_DEC_m = interpolate.UnivariateSpline(d.z,d.z_DEC_MKO,s=0,k=1)
             Y_DEC_m = interpolate.UnivariateSpline(d.z,d.Y_DEC_MKO,s=0,k=1)
+            i_COS_m = interpolate.UnivariateSpline(d.z,d.i_COS_MKO,s=0,k=1)
             z_COS_m = interpolate.UnivariateSpline(d.z,d.z_COS_MKO,s=0,k=1)
             y_COS_m = interpolate.UnivariateSpline(d.z,d.y_COS_MKO,s=0,k=1)
+            i_SDSS_m = interpolate.UnivariateSpline(d.z,d.i_SDSS_MKO,s=0,k=1)
             z_SDSS_m = interpolate.UnivariateSpline(d.z,d.z_SDSS_MKO,s=0,k=1)
             Z_MKO_m = interpolate.UnivariateSpline(d.z,d.Z_MKO_MKO,s=0,k=1)
             Y_MKO_m = interpolate.UnivariateSpline(d.z,d.Y_MKO_MKO,s=0,k=1)
@@ -218,14 +225,19 @@ def _colour_shelf(nz=0):
             JE_m = interpolate.UnivariateSpline(d.z,d.J_EUC_MKO,s=0,k=1)
             HE_m = interpolate.UnivariateSpline(d.z,d.H_EUC_MKO,s=0,k=1)
             KJ_m = interpolate.UnivariateSpline(d.z,d.KJ_MKO,s=0,k=1)
+            i_PS_e = interpolate.UnivariateSpline(d.z,d.i_PS_EUC,s=0,k=1)
             z_PS_e = interpolate.UnivariateSpline(d.z,d.z_PS_EUC,s=0,k=1)
             y_PS_e = interpolate.UnivariateSpline(d.z,d.y_PS_EUC,s=0,k=1)
+            i_LSST_e = interpolate.UnivariateSpline(d.z,d.i_LSST_EUC,s=0,k=1)
             z_LSST_e = interpolate.UnivariateSpline(d.z,d.z_LSST_EUC,s=0,k=1)
             y_LSST_e = interpolate.UnivariateSpline(d.z,d.y_LSST_EUC,s=0,k=1)
+            i_DEC_e = interpolate.UnivariateSpline(d.z,d.i_DEC_EUC,s=0,k=1)
             z_DEC_e = interpolate.UnivariateSpline(d.z,d.z_DEC_EUC,s=0,k=1)
             Y_DEC_e = interpolate.UnivariateSpline(d.z,d.Y_DEC_EUC,s=0,k=1)
+            i_COS_e = interpolate.UnivariateSpline(d.z,d.z_COS_EUC,s=0,k=1)
             z_COS_e = interpolate.UnivariateSpline(d.z,d.z_COS_EUC,s=0,k=1)
             y_COS_e = interpolate.UnivariateSpline(d.z,d.y_COS_EUC,s=0,k=1)
+            i_SDSS_e = interpolate.UnivariateSpline(d.z,d.z_SDSS_EUC,s=0,k=1)
             z_SDSS_e = interpolate.UnivariateSpline(d.z,d.z_SDSS_EUC,s=0,k=1)
             Z_MKO_e = interpolate.UnivariateSpline(d.z,d.Z_MKO_EUC,s=0,k=1)
             Y_MKO_e = interpolate.UnivariateSpline(d.z,d.Y_MKO_EUC,s=0,k=1)
@@ -242,14 +254,19 @@ def _colour_shelf(nz=0):
             KJ_e = interpolate.UnivariateSpline(d.z,d.KJ_EUC,s=0,k=1)
             #build the lookup table
             for z in _myqzs:
+                model[m]['X-J_MKO']['i_PS'][f"{z:.2f}"] = i_PS_m(z)
                 model[m]['X-J_MKO']['z_PS'][f"{z:.2f}"] = z_PS_m(z)
                 model[m]['X-J_MKO']['y_PS'][f"{z:.2f}"] = y_PS_m(z)
+                model[m]['X-J_MKO']['i_LSST'][f"{z:.2f}"] = i_LSST_m(z)
                 model[m]['X-J_MKO']['z_LSST'][f"{z:.2f}"] = z_LSST_m(z)
                 model[m]['X-J_MKO']['y_LSST'][f"{z:.2f}"] = y_LSST_m(z)
+                model[m]['X-J_MKO']['i_DEC'][f"{z:.2f}"] = i_DEC_m(z)
                 model[m]['X-J_MKO']['z_DEC'][f"{z:.2f}"] = z_DEC_m(z)
                 model[m]['X-J_MKO']['Y_DEC'][f"{z:.2f}"] = Y_DEC_m(z)
+                model[m]['X-J_MKO']['i_COS'][f"{z:.2f}"] = i_COS_m(z)
                 model[m]['X-J_MKO']['z_COS'][f"{z:.2f}"] = z_COS_m(z)
-                model[m]['X-J_MKO']['y_COS'][f"{z:.2f}"] = y_COS_m(z) 
+                model[m]['X-J_MKO']['y_COS'][f"{z:.2f}"] = y_COS_m(z)
+                model[m]['X-J_MKO']['i_SDSS'][f"{z:.2f}"] = i_SDSS_m(z)
                 model[m]['X-J_MKO']['z_SDSS'][f"{z:.2f}"] = z_SDSS_m(z)                
                 model[m]['X-J_MKO']['Z_MKO'][f"{z:.2f}"] = Z_MKO_m(z)
                 model[m]['X-J_MKO']['Y_MKO'][f"{z:.2f}"] = Y_MKO_m(z)
@@ -264,14 +281,19 @@ def _colour_shelf(nz=0):
                 model[m]['X-J_MKO']['J_EUC'][f"{z:.2f}"] = JE_m(z)
                 model[m]['X-J_MKO']['H_EUC'][f"{z:.2f}"] = HE_m(z)
                 model[m]['X-J_MKO']['KJ'][f"{z:.2f}"] = KJ_m(z)
+                model[m]['X-J_EUC']['i_PS'][f"{z:.2f}"] = i_PS_e(z)
                 model[m]['X-J_EUC']['z_PS'][f"{z:.2f}"] = z_PS_e(z)
                 model[m]['X-J_EUC']['y_PS'][f"{z:.2f}"] = y_PS_e(z)
+                model[m]['X-J_EUC']['i_LSST'][f"{z:.2f}"] = i_LSST_e(z)
                 model[m]['X-J_EUC']['z_LSST'][f"{z:.2f}"] = z_LSST_e(z)
                 model[m]['X-J_EUC']['y_LSST'][f"{z:.2f}"] = y_LSST_e(z)
+                model[m]['X-J_EUC']['i_DEC'][f"{z:.2f}"] = i_DEC_e(z)
                 model[m]['X-J_EUC']['z_DEC'][f"{z:.2f}"] = z_DEC_e(z)
                 model[m]['X-J_EUC']['Y_DEC'][f"{z:.2f}"] = Y_DEC_e(z)
+                model[m]['X-J_EUC']['i_COS'][f"{z:.2f}"] = i_COS_e(z)
                 model[m]['X-J_EUC']['z_COS'][f"{z:.2f}"] = z_COS_e(z)
                 model[m]['X-J_EUC']['y_COS'][f"{z:.2f}"] = y_COS_e(z) 
+                model[m]['X-J_EUC']['i_SDSS'][f"{z:.2f}"] = i_SDSS_e(z)
                 model[m]['X-J_EUC']['z_SDSS'][f"{z:.2f}"] = z_SDSS_e(z)                
                 model[m]['X-J_EUC']['Z_MKO'][f"{z:.2f}"] = Z_MKO_e(z)
                 model[m]['X-J_EUC']['Y_MKO'][f"{z:.2f}"] = Y_MKO_e(z)
@@ -286,9 +308,9 @@ def _colour_shelf(nz=0):
                 model[m]['X-J_EUC']['J_EUC'][f"{z:.2f}"] = JE_e(z)
                 model[m]['X-J_EUC']['H_EUC'][f"{z:.2f}"] = HE_e(z)
                 model[m]['X-J_EUC']['KJ'][f"{z:.2f}"] = KJ_e(z)
-                #do the ugri bands which we always just want at a high value
-                #not all of these systems have the full set ugri but won't matter that extras are created
-                for opt_band in 'irgu':
+                #do the ugr bands which we always just want at a high value
+                #not all of these systems have the full set ugr but won't matter that extras are created
+                for opt_band in 'rgu':
                     for opt_set in ['PS','LSST','SDSS','DEC','COS']:
                         try:
                             model[m]['X-J_MKO'][f'{opt_band}_{opt_set}'][f"{z:.2f}"] = 100
@@ -352,13 +374,13 @@ def _qsolikelihood(M,zin,qm,Jfilter,photom):
     predJ = _Jflx_from_M1450(M,zin,qm,Jfilter)
     lk = 1.
     for band in photom:
-        if photom[band]['f']:
-            colour = _model[qm][f'X-J_{Jfilter}'][band[:-1]][f"{zin:.2f}"]
+        if photom[band]['f'] is not None:
+            colour = _model[qm][f'X-J_{Jfilter}'][bmccom.band_name_nodigits_regex(band)][f"{zin:.2f}"]
         #the code will have already checked the redshift limits
         #so very blue H/K/W-J colours (z>10) are not an issue (where template fJ = 0).
         #we now deal with very red X-J colours in bluer X bands,
         #where template flux can be zero.
-            predb = predJ * 10**(-0.4*colour) if colour < 6 else 0.
+            predb = predJ * 10**(-0.4*colour) if colour < 8 else 0.
             lk *= bmccom.liketerm(predb,photom[band]['f'],photom[band]['e'])
     return lk
 
@@ -405,7 +427,7 @@ def best_fit_SED(phot,Jfilter):
             template = []
             for band in bands:#build template for each model. note the bands in 'bands' have had subscripted integers removed.
                 colour = _model[m][f'X-J_{Jfilter}'][band][f"{z:.2f}"]
-                predb = Jflx * 10**(-0.4*colour) if colour < 6 else 0.
+                predb = Jflx * 10**(-0.4*colour) if colour < 8 else 0.
                 template.append(predb)
             best_scale = bmccom.scalebest(template,sed,errors)#scaling that minimises chisq for a template; scalebest also excludes limits
             chisq = sum([bmccom.chisq(template[i],j,errors[i],best_scale) for i,j in enumerate(sed) if type(errors[i])!=str])#minimum chisq, exclude limits
@@ -431,7 +453,7 @@ else:
 #which we output to lookup table.
 #they are also the evaluation points for interpolated colours, for the lookup table
 #the integral is carried out at dz = 0.05 so this spacing is ample.
-    _myqzs = np.arange(6.1,12.0001,0.01)
+    _myqzs = np.arange(5.2,12.0001,0.01)
     _dllookup,_dvlookup = _cosmology_lookups()
     _qtempdist,_qint_lims,_nz,_allqms = _quasar_options(dld._Jfilt)
     _simpz_q = np.arange(_qint_lims[0],_qint_lims[1]+0.01,0.05)

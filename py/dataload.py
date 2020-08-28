@@ -40,11 +40,11 @@ def _J_filter(filename,testingmode=0):
     #check for Euclid first as the integtation range can be bigger
     elif len([c for c in d.columns if c.startswith('J_EUC')])>0:
         return 'EUC'
-    elif len([c for c in d.columns if c.startswith('J_VIK')])>0:
+    elif len([c for c in d.columns if c.startswith('J_MKO_VIK')])>0:
         return 'MKO_VIK'
-    elif len([c for c in d.columns if c.startswith('J_LAS')])>0:
+    elif len([c for c in d.columns if c.startswith('J_MKO_LAS')])>0:
         return 'MKO_LAS'
-    elif len([c for c in d.columns if c.startswith('J_UV')])>0:
+    elif len([c for c in d.columns if c.startswith('J_MKO_UV')])>0:
         return 'MKO_UV'
     #    print("MKO J band found. Is this data from VIKING? (This affects the ETG prior)")
     #    viking = input("y/n:")
@@ -303,7 +303,6 @@ def _flux_dict(d):
                 entryname = band+f"{nsi}"
             fluxdict[entryname] = {'f':f,'e':e}
     if fluxdict: #empty dictionary is bad! it evaluates to false
-        #print(fluxdict)
         return fluxdict
     else:
         print("Error! Unable to find any valid bands to work with. Check photometry file.")
@@ -337,7 +336,6 @@ if __name__ == "__main__":
             'O_EUC': 2667.,'Y_EUC': 1900.,'J_EUC': 1354.,'H_EUC': 922.}
     
     filename = "J1120.sed"
-
     _m0_values = _m0_values_setup()
     d = csv_load(filename)
     
@@ -351,6 +349,7 @@ else:
     except IndexError: #should only occur if pqrun/plots are NOT run from command line
         #likely to be running pqrun.py within spyder.
         filename = "J1120.sed"
+        #filename = "quasar_db_calc.csv"
         
     _Jfilt = _J_filter(filename)      
 #vega zero points in Jy. Combination of SVO filter sevice, Hewett+ 2006 and CASU homepage.
